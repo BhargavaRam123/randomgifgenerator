@@ -1,95 +1,59 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
+import Button from "./components/button";
+import Spinner from "./components/spinner";
+import Taggif from "./components/taggif";
+import Customhook from "./components/customhook";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Home() {
+  const { loading, imgurl, callapi } = Customhook();
+  const [base64, setbase64] = useState("");
+  async function fetchdata() {
+    // console.log("calling base64 api");
+    const resonse = await axios.post("/api/base64", { imgurl: imgurl });
+    const _base64 = resonse.data.base64;
+    // console.log("API resonse of base64:", _base64);
+    setbase64(_base64);
+  }
+  useEffect(() => {
+    if (imgurl) fetchdata();
+  }, [imgurl]);
+  // console.log("base64 is ", base64);
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
+    <div className={styles.container}>
+      <div className="maincontainer">
+        <div className="c1">RANDOM GIFS</div>
+        <div className="c2">
+          <div>A RANDOM GIF</div>
+          <div>
+            {loading ? (
+              <Spinner />
+            ) : base64 ? (
+              <Image
+                src={imgurl}
+                placeholder="blur"
+                blurDataURL={base64}
+                priority={true}
+                quality={50}
+                alt="GIF"
+                width={350}
+                height={350}
+              />
+            ) : null}
+          </div>
+          <Button
+            callapi={() => {
+              callapi("");
+            }}
+          />
+        </div>
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <Taggif />
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
